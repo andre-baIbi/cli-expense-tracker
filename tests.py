@@ -1,10 +1,11 @@
 import datetime
 import os
+from argparse import Namespace
 
 import pytest
 
 from Expense import Expense
-from FileHandler import FileHandler
+from FileHandler import FileHandler, updateExpenseInDataFile
 
 TEST_ENV = "test"
 fileHandler: FileHandler = FileHandler.getFileHandler("test")
@@ -28,11 +29,9 @@ def printAndDelete():
 
 
 
-def test_add_expense(printAndDelete):
+def test_add_expense_white_box(printAndDelete):
     """Users can add an expense with a description and amount."""
 
-
-    # criar expense
     amount = 40.00
     description = "McLanche Feliz"
 
@@ -46,12 +45,33 @@ def test_add_expense(printAndDelete):
 
 
 
-
-
-
-def test_update_expense():
+def test_update_expense_white_box():
     """Users can update an expense."""
-    assert False
+    _ = Expense.add(20.0, "Lunch", handler=fileHandler)
+    _ = Expense.add(50.0, "Groceries", handler=fileHandler)
+
+    expectedAmount = 100.0
+    description = "Utilities"
+    expenseToTest = Expense.add(expectedAmount, description, handler=fileHandler)
+    expectedDate = expenseToTest.getCreationDate()
+
+    testId = expenseToTest.getId()
+
+    newDescription = "Music and Stuff"
+
+    # Simulates user input
+    updateNamespace = Namespace()
+    updateNamespace.__setattr__("id", testId)
+    updateNamespace.__setattr__("description", newDescription)
+
+    updateExpenseInDataFile(updateNamespace, fileHandler)
+
+    expenseDataFromJsonFile = fileHandler.getById(testId)
+
+    assert expectedAmount == expenseDataFromJsonFile["amount"]
+    assert newDescription == expenseDataFromJsonFile["description"]
+    assert expectedDate.isoformat() == expenseDataFromJsonFile["creationDate"]
+
 
 def test_delete_expense():
     """Users can delete an expense."""

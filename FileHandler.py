@@ -1,5 +1,6 @@
 import configparser
 import json
+from argparse import Namespace
 from configparser import ConfigParser
 
 
@@ -52,6 +53,19 @@ class FileHandler:
 
     def getById(self, _id: int):
         return self.parseDataFromJsonFile()[str(_id)]
+
+def updateExpenseInDataFile(argsFromCli: Namespace, fileHandler: FileHandler):
+    argsId = str(argsFromCli.id)
+
+    data = fileHandler.parseDataFromJsonFile()
+    expenseData = data[argsId]
+    for argName in argsFromCli.__dir__():
+        if argName and (not "_" in argName):
+            arg = argsFromCli.__getattribute__(argName)
+            if arg and (not arg == "id"):
+                expenseData[argName] = str(arg)
+    data[argsId] = expenseData
+    fileHandler.saveDataInJsonFile(data)
 
 
 if __name__ == '__main__':

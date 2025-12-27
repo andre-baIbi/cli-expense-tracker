@@ -3,4 +3,17 @@ https://roadmap.sh/projects/expense-tracker
 
 Also training my TDD skills...
 
-- add (working and tested)
+## Setup
+- Install Python 3.8+
+- Clone the project
+- Access its root dir through CLI
+
+## How to use it
+**Docs at:** `py .\expense-tracker.py --help`
+
+- **add (working and tested)**
+- **update (working and tested)**
+- _delete (todo)_
+- _summary (todo)_
+- _filtered summary (todo)_
+- _extras: black-box testing (todo)_

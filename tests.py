@@ -10,15 +10,25 @@ TEST_ENV = "test"
 fileHandler: FileHandler = FileHandler.getFileHandler("test")
 
 
+def printContentsFromFile(test_file):
+    with open(test_file, "r") as file:
+        contents = file.read()
+    print(f"\n{"="*50}\nCONTENTS OF {test_file}:\n{contents}\n\n")
+
 @pytest.fixture(autouse=True)
-def tearDown():
-    """Fixture to delete the test_data.json file before each test."""
+def printAndDelete():
     test_file = fileHandler.jsonFilename
+
+    yield
+
     if os.path.exists(test_file):
+        printContentsFromFile(test_file)
         os.remove(test_file)
+        print(f"Test file {test_file} deleted")
 
 
-def test_add_expense(tearDown):
+
+def test_add_expense(printAndDelete):
     """Users can add an expense with a description and amount."""
 
 

@@ -41,7 +41,7 @@ $ expense-tracker summary --month 8
 - **delete (working and tested)**
 - **list (working and tested)**
 - **summary (working and tested)**
-- _filtered summary (todo)_
+- **filtered summary (partially implemented)**
 - **extras: black-box testing (partially implemented)**
 - _extras: export to CSV (todo)_
 
@@ -53,7 +53,7 @@ $ expense-tracker summary --month 8
 - [X] Users can view all expenses. (**list**)
 - [X] Users can view a summary of all expenses. (**summary**)
 - [ ] Users can view a summary of expenses for a specific month (of current year).
-- [ ] Add expense categories and allow users to filter expenses by category. (**filterByCategory**)
+- [X] Add expense categories and allow users to filter expenses by category. (**filterByCategory**)
 - [ ] Allow users to export expenses to a CSV file.
 
 **Disclaimer: No AI was used developing this program. Only docs**

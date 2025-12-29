@@ -1,7 +1,7 @@
 from argparse import ArgumentParser, Namespace
 
 from Expense import Expense, Category
-from FileHandler import FileHandler, updateExpenseInDataFile, deleteById
+from FileHandler import FileHandler, updateExpenseInDataFile, deleteById, listAllExpenses, summaryOfExpenses
 
 parser = ArgumentParser()
 
@@ -10,10 +10,13 @@ parser.add_argument("--description", type=str)
 parser.add_argument("--amount", help="Must be a float or float castable string",type=float)
 parser.add_argument("--id", type=int, help="Expense id on datafile")
 parser.add_argument("--category", choices=[category.value for category in Category])
+parser.add_argument("--test", action="store_true")
 
 args = parser.parse_args()
 command = args.command
-fileHandler = FileHandler(env="prd")
+
+env = "test" if args.test else "prd"
+fileHandler = FileHandler(env)
 
 
 
@@ -38,6 +41,12 @@ if __name__ == '__main__':
             deleteById(str(args.id), fileHandler)
         else:
             print("Error: Insert expense ID.")
+
+    elif command == "list":
+        listAllExpenses(fileHandler, printable=True)
+
+    elif command == "summary":
+        print(f"Total Expenses: ${summaryOfExpenses(fileHandler)}")
 
     else:
         print(f"There is no command named {command}, type -help for more information.")

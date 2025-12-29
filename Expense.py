@@ -1,16 +1,8 @@
-import configparser
 import datetime
-from enum import StrEnum
-
+from Category import Category
 from FileHandler import FileHandler
 
 
-class Category(StrEnum):
-    UNDEFINED = "UNDEFINED"
-    FOOD = "FOOD"
-    BILL = "BILLING"
-    INVESTMENT = "INVESTMENT"
-    HEALTH = "HEALTH"
 
 class Expense:
     _id: int

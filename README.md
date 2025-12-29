@@ -39,7 +39,7 @@ $ expense-tracker summary --month 8
 - **add (working and tested)**
 - **update (working and tested)**
 - **delete (working and tested)**
-- _list (todo)_
+- **list (working and tested)**
 - _summary (todo)_
 - _filtered summary (todo)_
 - _extras: black-box testing (todo)_

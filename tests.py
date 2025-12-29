@@ -5,7 +5,7 @@ from argparse import Namespace
 import pytest
 
 from Expense import Expense
-from FileHandler import FileHandler, updateExpenseInDataFile
+from FileHandler import FileHandler, updateExpenseInDataFile, deleteById
 
 TEST_ENV = "test"
 fileHandler: FileHandler = FileHandler.getFileHandler("test")
@@ -75,7 +75,20 @@ def test_update_expense_white_box():
 
 def test_delete_expense():
     """Users can delete an expense."""
-    assert False
+    #  create expenses
+    _ = Expense.add(20.0, "Lunch", handler=fileHandler)
+    _ = Expense.add(50.0, "Groceries", handler=fileHandler)
+    target = Expense.add(100, "Forgot...", handler=fileHandler)
+
+    #  check all saved expenses
+    expensesSize = len(list(fileHandler.parseDataFromJsonFile()))
+
+    #  delete expense
+    deleteById(str(target.getId()), fileHandler)
+
+    #  check if expense was removed
+    assert len(fileHandler.parseDataFromJsonFile()) == expensesSize - 1
+
 
 def test_view_all_expenses():
     """Users can view all expenses."""

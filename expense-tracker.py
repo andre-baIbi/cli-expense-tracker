@@ -1,7 +1,7 @@
 from argparse import ArgumentParser, Namespace
 
 from Expense import Expense, Category
-from FileHandler import FileHandler, updateExpenseInDataFile
+from FileHandler import FileHandler, updateExpenseInDataFile, deleteById
 
 parser = ArgumentParser()
 
@@ -30,6 +30,12 @@ if __name__ == '__main__':
         if args.id:
             updateExpenseInDataFile(args, fileHandler)
 
+        else:
+            print("Error: Insert expense ID.")
+
+    elif command == "delete":
+        if args.id:
+            deleteById(str(args.id), fileHandler)
         else:
             print("Error: Insert expense ID.")
 

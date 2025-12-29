@@ -13,7 +13,7 @@ Also training my TDD skills...
 
 - **add (working and tested)**
 - **update (working and tested)**
-- _delete (todo)_
+- **delete (working and tested)**
 - _summary (todo)_
 - _filtered summary (todo)_
 - _extras: black-box testing (todo)_

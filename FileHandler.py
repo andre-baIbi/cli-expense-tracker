@@ -54,6 +54,12 @@ class FileHandler:
     def getById(self, _id: int):
         return self.parseDataFromJsonFile()[str(_id)]
 
+def deleteById(_id: str, fileHandler: FileHandler):
+    data = fileHandler.parseDataFromJsonFile()
+    del data[_id]
+    fileHandler.saveDataInJsonFile(data)
+
+
 def updateExpenseInDataFile(argsFromCli: Namespace, fileHandler: FileHandler):
     argsId = str(argsFromCli.id)
 

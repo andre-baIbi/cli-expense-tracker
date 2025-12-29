@@ -36,7 +36,7 @@ class Expense:
         return self._creationDate
 
     @classmethod
-    def add(cls, amount: float, description: str, handler=None, category: Category = Category.UNDEFINED):
+    def add(cls, amount: float, description: str,category: Category, handler=None, ):
         if not handler:
             handler = FileHandler.getFileHandler("prd")
 

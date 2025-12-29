@@ -96,14 +96,43 @@ def listAllExpenses(fileHandler: FileHandler, printable=None) -> list[dict]:
         if printable: print()
     return expenses
 
-def summaryOfExpenses(fileHandler: FileHandler, _filterByCategory: Category=None):
+
+def dateIsMonth(date):
+    pass
+
+
+def matchWithExpectedDate(date, expense):
+    if dateIsMonth(date):
+        isExpenseFromMonth(date, expense)
+    if dateIsYear(date):
+        isExpenseFromYear(date, expense)
+
+
+def filtersMatch(filters, expense):
+    result = True
+    for _filter, value in filters.items():
+        if _filter == "category":
+            result = matchWithExpectedCategory(value, expense)
+        if _filter == "date":
+            result = matchWithExpectedDate(value, expense)
+    return result
+
+def summaryOfExpenses(fileHandler: FileHandler, filters: dict):
     _sum = 0
+
     for expense in listAllExpenses(fileHandler):
-        if _filterByCategory and expense["category"] == _filterByCategory.value: continue
-        for key, value in expense.items():
-            if key == "amount":
-                _sum += float(value)
+        if filtersMatch(filters, expense):
+            for key, value in expense.items():
+                if key == "amount":
+                    _sum += float(value)
     return _sum
+
+
+def matchWithExpectedCategory(category, expense):
+    """If category is None, returns True"""
+    if not category: return True
+    return expense["category"] == category
+
 
 if __name__ == '__main__':
     ...

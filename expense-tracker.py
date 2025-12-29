@@ -25,7 +25,9 @@ fileHandler = FileHandler(env)
 if __name__ == '__main__':
     if command == "add":
         if args.amount:
-            Expense.add(args.amount, args.description, handler=fileHandler)
+            category = Category(args.category) if args.category else Category.UNDEFINED
+
+            Expense.add(args.amount, args.description, category=category, handler=fileHandler)
         else:
             print("There must be an amount set!")
 
@@ -46,7 +48,7 @@ if __name__ == '__main__':
         listAllExpenses(fileHandler, printable=True)
 
     elif command == "summary":
-        print(f"Total Expenses: ${summaryOfExpenses(fileHandler)}")
+        print(f"Total Expenses: ${summaryOfExpenses(fileHandler, category=Category(args.category) if args.category else None)}")
 
     else:
         print(f"There is no command named {command}, type -help for more information.")

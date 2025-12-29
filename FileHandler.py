@@ -2,6 +2,9 @@ import configparser
 import json
 from argparse import Namespace
 from configparser import ConfigParser
+from copy import deepcopy
+
+from Category import Category
 
 
 class FileHandler:
@@ -73,6 +76,34 @@ def updateExpenseInDataFile(argsFromCli: Namespace, fileHandler: FileHandler):
     data[argsId] = expenseData
     fileHandler.saveDataInJsonFile(data)
 
+
+def firstRunListPrint(data):
+    print()
+    for key, _ in deepcopy(data).popitem()[1].items():
+        print(key.upper(), end="    ")
+    print()
+
+
+def listAllExpenses(fileHandler: FileHandler, printable=None) -> list[dict]:
+    expenses = []
+    data = fileHandler.parseDataFromJsonFile()
+
+    if printable: firstRunListPrint(data)
+    for expenseDict in data.values():
+        for k, v in expenseDict.items():
+            if printable: print(v, end="    ")
+        expenses.append(expenseDict)
+        if printable: print()
+    return expenses
+
+def summaryOfExpenses(fileHandler: FileHandler, _filterByCategory: Category=None):
+    _sum = 0
+    for expense in listAllExpenses(fileHandler):
+        if _filterByCategory and expense["category"] == _filterByCategory.value: continue
+        for key, value in expense.items():
+            if key == "amount":
+                _sum += float(value)
+    return _sum
 
 if __name__ == '__main__':
     ...

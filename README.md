@@ -17,3 +17,5 @@ Also training my TDD skills...
 - _summary (todo)_
 - _filtered summary (todo)_
 - _extras: black-box testing (todo)_
+
+**Disclaimer: No AI was used developing this program.**

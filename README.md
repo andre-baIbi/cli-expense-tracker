@@ -1,7 +1,9 @@
 # cli-expense-tracker
 https://roadmap.sh/projects/expense-tracker
 
-Also training my TDD skills...
+**Disclaimer: AI was used SOLELY for docs and boilerplate code.**
+
+Training my TDD skills...
 
 ## Setup
 - Install Python 3.8+
@@ -36,14 +38,13 @@ $ expense-tracker summary --month 8
 **Docs at:** `py .\expense-tracker.py --help`
 
 ### Features
-- **add (working and tested)**
-- **update (working and tested)**
-- **delete (working and tested)**
-- **list (working and tested)**
-- **summary (working and tested)**
-- _filtered summary (todo)_
-- **extras: black-box testing (partially implemented)**
-- _extras: export to CSV (todo)_
+- **add**
+- **update**
+- **delete**
+- **list**
+- **summary**
+- **filtered summary**
+- **extras: black-box testing**
 
 
 **Tasks**
@@ -52,8 +53,7 @@ $ expense-tracker summary --month 8
 - [X] Users can delete an expense.
 - [X] Users can view all expenses. (**list**)
 - [X] Users can view a summary of all expenses. (**summary**)
-- [ ] Users can view a summary of expenses for a specific month (of current year).
-- [ ] Add expense categories and allow users to filter expenses by category. (**filterByCategory**)
-- [ ] Allow users to export expenses to a CSV file.
+- [X] Users can view a summary of expenses for a specific month (of current year) (**summary --year / --month**).
+- [X] Add expense categories and allow users to filter expenses by category. (**filterByCategory**)
 
-**Disclaimer: No AI was used developing this program. Only docs**
+

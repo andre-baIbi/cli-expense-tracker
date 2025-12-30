@@ -1,3 +1,4 @@
+import json
 import os
 import random
 from argparse import Namespace
@@ -5,17 +6,18 @@ from subprocess import run, CompletedProcess
 
 import pytest
 
+from Category import Category
 from Expense import Expense
-from FileHandler import FileHandler, updateExpenseInDataFile, deleteById, listAllExpenses
+from FileHandler import FileHandler, updateExpenseInDataFile, deleteById, listAllExpenses, summaryOfExpenses
 
 TEST_ENV = "test"
 fileHandler: FileHandler = FileHandler.getFileHandler("test")
-
+BLACK_BOX_TEST_SAMPLES = 10
 
 def printContentsFromFile(test_file):
     with open(test_file, "r") as file:
-        contents = file.read()
-    print(f"\n{"="*50}\nCONTENTS OF {test_file}:\n{contents}\n\n")
+        content = json.loads(file.read())
+    print(f"\n{"="*50}\nCONTENTS OF {test_file}:\n{json.dumps(content, indent=4)}\n\n")
 
 @pytest.fixture(autouse=True)
 def printAndDelete():
@@ -28,7 +30,6 @@ def printAndDelete():
         os.remove(test_file)
         print(f"Test file {test_file} deleted")
 
-
 class TestWhiteBox:
     def test_add_expense_white_box(self, printAndDelete):
         """Users can add an expense with a description and amount."""
@@ -36,7 +37,7 @@ class TestWhiteBox:
         amount = 40.00
         description = "McLanche Feliz"
 
-        expense = Expense.add(amount, description, handler=fileHandler)
+        expense = Expense.add(amount, description, Category.UNDEFINED, handler=fileHandler)
 
         expenseDataFromJsonFile = fileHandler.getById(expense.getId())
         assert expense.getId() == expenseDataFromJsonFile["id"]
@@ -46,12 +47,12 @@ class TestWhiteBox:
 
     def test_update_expense_white_box(self):
         """Users can update an expense."""
-        _ = Expense.add(20.0, "Lunch", handler=fileHandler)
-        _ = Expense.add(50.0, "Groceries", handler=fileHandler)
+        _ = Expense.add(20.0, "Lunch", Category.UNDEFINED, handler=fileHandler)
+        _ = Expense.add(50.0, "Groceries", Category.UNDEFINED, handler=fileHandler)
 
         expectedAmount = 100.0
         description = "Utilities"
-        expenseToTest = Expense.add(expectedAmount, description, handler=fileHandler)
+        expenseToTest = Expense.add(expectedAmount, description, Category.UNDEFINED, handler=fileHandler)
         expectedDate = expenseToTest.getCreationDate()
 
         testId = expenseToTest.getId()
@@ -74,9 +75,9 @@ class TestWhiteBox:
     def test_delete_expense(self):
         """Users can delete an expense."""
         #  create expenses
-        _ = Expense.add(20.0, "Lunch", handler=fileHandler)
-        _ = Expense.add(50.0, "Groceries", handler=fileHandler)
-        target = Expense.add(100, "Forgot...", handler=fileHandler)
+        _ = Expense.add(20.0, "Lunch", Category.UNDEFINED, handler=fileHandler)
+        _ = Expense.add(50.0, "Groceries", Category.UNDEFINED, handler=fileHandler)
+        target = Expense.add(100, "Forgot...", Category.UNDEFINED, handler=fileHandler)
 
         #  check all saved expenses
         expensesSize = len(list(fileHandler.parseDataFromJsonFile()))
@@ -87,24 +88,6 @@ class TestWhiteBox:
         #  check if expense was removed
         assert len(fileHandler.parseDataFromJsonFile()) == expensesSize - 1
 
-
-def runTestCommand(commandStr: str) -> CompletedProcess:
-    EXPENSE_TRACKER_COMMAND = "py .\\expense-tracker.py "
-    TEST_KEYWORD = " --test"
-
-    return run((EXPENSE_TRACKER_COMMAND + commandStr + TEST_KEYWORD).split(" "), capture_output=True)
-
-
-def getSummaryValueFromSummaryStdout(summarizeCommand):
-    return float(
-                str(
-                    runTestCommand(summarizeCommand).stdout)
-                        .split("$")[1]
-                        .replace("\\r", "")
-                        .replace("\\n", "")[:-1]
-            )
-
-
 class TestBlackBox:
     def test_list_all_expenses(self):
         """Users can view all expenses."""
@@ -112,7 +95,7 @@ class TestBlackBox:
 
         amounts = []
 
-        for _ in range(25):
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
             amount = str(random.randint(1, 1000))
             amounts.append(amount)
             addCommand = f"add --description Drugstore --amount {amount}"
@@ -128,7 +111,7 @@ class TestBlackBox:
         """Users can view a summary of all expenses."""
         amounts = []
 
-        for _ in range(25):
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
             amount = random.randint(1, 1000)
             amounts.append(amount)
             addCommand = f"add --description expense --amount {str(amount)}"
@@ -139,6 +122,65 @@ class TestBlackBox:
 
         assert result == sum(amounts)
 
+    def test_summarize_by_category(self):
+        """Users can view a summary of all expenses by category."""
+        amounts = []
+
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
+            amount = random.randint(1, 1000)
+            amounts.append(amount)
+            addCommand = f"add --description expense --amount {str(amount)} --category HEALTH"
+            runTestCommand(addCommand)
+
+        expected = sum(amounts)
+
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
+            amount = random.randint(1, 1000)
+            amounts.append(amount)
+            addCommand = f"add --description expense --amount {str(amount)}"
+            runTestCommand(addCommand)
+
+
+
+        summarizeCommand = "summary --category HEALTH"
+        result = getSummaryValueFromSummaryStdout(summarizeCommand)
+
+        assert result == expected
+
+class TestsGrayBox:
     def test_summarize_expenses_for_specific_month(self):
-        """Users can view a summary of expenses for a specific month (of current year)."""
-        assert False
+        """Users can view a summary of expenses for a specific month."""
+        testCase = "TestCases/test_summary_month.json"
+        expectedResult = 500
+
+        result = getSummaryValueFromSummaryStdout(f"summary --month 10 --testCase {testCase}")
+        assert result == expectedResult
+
+    def test_summarize_expenses_for_specific_year(self):
+        """Users can view a summary of expenses for a specific year."""
+        testCase = "TestCases/test_summary_year.json"
+        expectedResult = 500
+
+        result = getSummaryValueFromSummaryStdout(f"summary --year 2024 --testCase {testCase}")
+        assert result == expectedResult
+
+
+
+# Utils
+
+def runTestCommand(commandStr: str) -> CompletedProcess:
+    EXPENSE_TRACKER_COMMAND = "py .\\expense-tracker.py "
+    TEST_KEYWORD = " --test"
+
+    return run((EXPENSE_TRACKER_COMMAND + commandStr + TEST_KEYWORD).split(" "), capture_output=True)
+
+
+def getSummaryValueFromSummaryStdout(summarizeCommand):
+    return float(
+                str(
+                    runTestCommand(summarizeCommand).stdout)
+                        .split("$")[1]
+                        .replace("\\r", "")
+                        .replace("\\n", "")
+                        [:-1]
+                )

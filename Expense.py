@@ -1,16 +1,8 @@
-import configparser
 import datetime
-from enum import StrEnum
-
+from Category import Category
 from FileHandler import FileHandler
 
 
-class Category(StrEnum):
-    UNDEFINED = "UNDEFINED"
-    FOOD = "FOOD"
-    BILL = "BILLING"
-    INVESTMENT = "INVESTMENT"
-    HEALTH = "HEALTH"
 
 class Expense:
     _id: int
@@ -44,7 +36,7 @@ class Expense:
         return self._creationDate
 
     @classmethod
-    def add(cls, amount: float, description: str, handler=None, category: Category = Category.UNDEFINED):
+    def add(cls, amount: float, description: str,category: Category, handler=None, ):
         if not handler:
             handler = FileHandler.getFileHandler("prd")
 

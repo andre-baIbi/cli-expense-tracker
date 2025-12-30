@@ -8,11 +8,11 @@ import pytest
 
 from Category import Category
 from Expense import Expense
-from FileHandler import FileHandler, updateExpenseInDataFile, deleteById, listAllExpenses
+from FileHandler import FileHandler, updateExpenseInDataFile, deleteById, listAllExpenses, summaryOfExpenses
 
 TEST_ENV = "test"
 fileHandler: FileHandler = FileHandler.getFileHandler("test")
-
+BLACK_BOX_TEST_SAMPLES = 10
 
 def printContentsFromFile(test_file):
     with open(test_file, "r") as file:
@@ -29,7 +29,6 @@ def printAndDelete():
         printContentsFromFile(test_file)
         os.remove(test_file)
         print(f"Test file {test_file} deleted")
-
 
 class TestWhiteBox:
     def test_add_expense_white_box(self, printAndDelete):
@@ -89,24 +88,6 @@ class TestWhiteBox:
         #  check if expense was removed
         assert len(fileHandler.parseDataFromJsonFile()) == expensesSize - 1
 
-
-def runTestCommand(commandStr: str) -> CompletedProcess:
-    EXPENSE_TRACKER_COMMAND = "py .\\expense-tracker.py "
-    TEST_KEYWORD = " --test"
-
-    return run((EXPENSE_TRACKER_COMMAND + commandStr + TEST_KEYWORD).split(" "), capture_output=True)
-
-
-def getSummaryValueFromSummaryStdout(summarizeCommand):
-    return float(
-                str(
-                    runTestCommand(summarizeCommand).stdout)
-                        .split("$")[1]
-                        .replace("\\r", "")
-                        .replace("\\n", "")[:-1]
-            )
-
-
 class TestBlackBox:
     def test_list_all_expenses(self):
         """Users can view all expenses."""
@@ -114,7 +95,7 @@ class TestBlackBox:
 
         amounts = []
 
-        for _ in range(25):
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
             amount = str(random.randint(1, 1000))
             amounts.append(amount)
             addCommand = f"add --description Drugstore --amount {amount}"
@@ -130,7 +111,7 @@ class TestBlackBox:
         """Users can view a summary of all expenses."""
         amounts = []
 
-        for _ in range(25):
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
             amount = random.randint(1, 1000)
             amounts.append(amount)
             addCommand = f"add --description expense --amount {str(amount)}"
@@ -145,7 +126,7 @@ class TestBlackBox:
         """Users can view a summary of all expenses by category."""
         amounts = []
 
-        for _ in range(25):
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
             amount = random.randint(1, 1000)
             amounts.append(amount)
             addCommand = f"add --description expense --amount {str(amount)} --category HEALTH"
@@ -153,7 +134,7 @@ class TestBlackBox:
 
         expected = sum(amounts)
 
-        for _ in range(25):
+        for _ in range(BLACK_BOX_TEST_SAMPLES):
             amount = random.randint(1, 1000)
             amounts.append(amount)
             addCommand = f"add --description expense --amount {str(amount)}"
@@ -166,8 +147,40 @@ class TestBlackBox:
 
         assert result == expected
 
-
+class TestsGrayBox:
     def test_summarize_expenses_for_specific_month(self):
-        """Users can view a summary of expenses for a specific month (of current year)."""
-        assert False
+        """Users can view a summary of expenses for a specific month."""
+        testCase = "TestCases/test_summary_month.json"
+        expectedResult = 500
 
+        result = getSummaryValueFromSummaryStdout(f"summary --month 10 --testCase {testCase}")
+        assert result == expectedResult
+
+    def test_summarize_expenses_for_specific_year(self):
+        """Users can view a summary of expenses for a specific year."""
+        testCase = "TestCases/test_summary_year.json"
+        expectedResult = 500
+
+        result = getSummaryValueFromSummaryStdout(f"summary --year 2024 --testCase {testCase}")
+        assert result == expectedResult
+
+
+
+# Utils
+
+def runTestCommand(commandStr: str) -> CompletedProcess:
+    EXPENSE_TRACKER_COMMAND = "py .\\expense-tracker.py "
+    TEST_KEYWORD = " --test"
+
+    return run((EXPENSE_TRACKER_COMMAND + commandStr + TEST_KEYWORD).split(" "), capture_output=True)
+
+
+def getSummaryValueFromSummaryStdout(summarizeCommand):
+    return float(
+                str(
+                    runTestCommand(summarizeCommand).stdout)
+                        .split("$")[1]
+                        .replace("\\r", "")
+                        .replace("\\n", "")
+                        [:-1]
+                )
